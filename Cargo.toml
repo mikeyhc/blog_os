@@ -1,0 +1,11 @@
+[package]
+name = "blog_os"
+version = "0.1.0"
+authors = ["Philipp Oppermann <dev@phil-opp.com>",
+           "Michael Blockley <mikeyhc@atmosia.net>"]
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+rlibc = "1.0"
