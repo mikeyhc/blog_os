@@ -17,6 +17,7 @@ all: $(kernel)
 
 clean:
 	@rm -r build
+	@xargo clean
 
 run: $(iso)
 	@qemu-system-x86_64 -cdrom $(iso)
