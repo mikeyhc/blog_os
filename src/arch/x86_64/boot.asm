@@ -99,6 +99,11 @@ check_long_mode:
     jmp error
 
 set_up_page_tables:
+    ; link the p4 table to itself
+    mov eax, p4_table
+    or eax, 0b11 ; present + writable
+    mov [p4_table + 511 * 8], eax
+
     ; map first p4 entry to p3 table
     mov eax, p3_table
     or eax, 0b11 ; present + writable
