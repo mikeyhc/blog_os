@@ -11,7 +11,7 @@ assembly_object_files := $(patsubst src/arch/$(arch)/%.asm, \
 target ?= $(arch)-blog_os
 rust_os := target/$(target)/debug/libblog_os.a
 
-.PHONY: all clean run iso kernel
+.PHONY: all clean run iso kernel debug gdb
 
 all: $(kernel)
 
@@ -20,7 +20,13 @@ clean:
 	@xargo clean
 
 run: $(iso)
-	@qemu-system-x86_64 -cdrom $(iso)
+	@qemu-system-x86_64 -cdrom $(iso) -d int -no-reboot -s
+
+debug: $(iso)
+	@qemu-system-x86_64 -cdrom $(iso) -s -S
+
+gdb:
+	@gdb "build/kernel-x86_64.bin" -ex "target remote :1234"
 
 iso: $(iso)
 
