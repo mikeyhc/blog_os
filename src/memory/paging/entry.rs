@@ -64,7 +64,7 @@ impl EntryFlags {
             flags = flags | WRITABLE;
         }
 
-        if section.flags().contains(ELF_SECTION_EXECUTABLE) {
+        if !section.flags().contains(ELF_SECTION_EXECUTABLE) {
             flags = flags | NO_EXECUTE;
         }
 
