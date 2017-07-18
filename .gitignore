@@ -14,3 +14,6 @@ Cargo.lock
 
 # build files
 build
+
+# library build files
+libs/**/target

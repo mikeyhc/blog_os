@@ -1,16 +1,19 @@
 [package]
+authors = ["Philipp Oppermann <dev@phil-opp.com>", "Michael Blockley <mikeyhc@atmosia.net>"]
 name = "blog_os"
 version = "0.1.0"
-authors = ["Philipp Oppermann <dev@phil-opp.com>",
-           "Michael Blockley <mikeyhc@atmosia.net>"]
-
-[lib]
-crate-type = ["staticlib"]
 
 [dependencies]
 bitflags = "0.7.0"
 multiboot2 = "0.1.0"
+once = "0.3.3"
 rlibc = "1.0"
 spin = "0.4.5"
 volatile = "0.1.0"
 x86_64 = "0.1.2"
+
+[dependencies.hole_list_allocator]
+path = "libs/hole_list_allocator"
+
+[lib]
+crate-type = ["staticlib"]

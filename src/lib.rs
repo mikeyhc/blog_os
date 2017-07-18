@@ -1,10 +1,16 @@
 #![feature(lang_items)]
 #![feature(const_fn, unique)]
 #![no_std]
+#![feature(alloc)]
 
+extern crate hole_list_allocator;
+#[macro_use]
+extern crate alloc;
 #[macro_use]
 extern crate bitflags;
 extern crate multiboot2;
+#[macro_use]
+extern crate once;
 extern crate rlibc;
 extern crate spin;
 extern crate volatile;
@@ -26,40 +32,21 @@ pub extern "C" fn rust_main(multiboot_information_address: usize) {
 
     println!("Hello World{}", "!");
 
-    // kernel and multiboot sizes
-    let elf_sections_tag = boot_info.elf_sections_tag()
-        .expect("ELF-sections tag expected");
-    let kernel_start = elf_sections_tag.sections().map(|s| s.addr)
-        .min().unwrap();
-    let kernel_end = elf_sections_tag.sections().map(|s| s.addr + s.size)
-        .max().unwrap();
-    let multiboot_start = multiboot_information_address;
-    let multiboot_end = multiboot_start+ (boot_info.total_size as usize);
-    println!("kernel:");
-    println!("    start: 0x{:x}, length: 0x{:x}",
-             kernel_start, kernel_end - kernel_start);
-    println!("multiboot:");
-    println!("    start: 0x{:x}, length: 0x{:x}",
-             multiboot_start, multiboot_end - multiboot_start);
-
-    // print available memory
-    let memory_map_tag = boot_info.memory_map_tag()
-        .expect("Memory map tag required");
-    println!("memory areas:");
-    for area in memory_map_tag.memory_areas() {
-        println!("    start: 0x{:x}, length: 0x{:x}",
-                 area.base_addr, area.length);
-    }
-
-    let mut frame_allocator = memory::AreaFrameAllocator::new(
-        kernel_start as usize, kernel_end as usize,
-        multiboot_start, multiboot_end,
-        memory_map_tag.memory_areas());
-    memory::test_paging(&mut frame_allocator);
-
     enable_nxe_bit();
-    memory::remap_the_kernel(&mut frame_allocator, boot_info);
-    println!("kernel has been remapped");
+    memory::init(boot_info);
+    enable_write_protect_bit();
+
+    use alloc::boxed::Box;
+    let mut heap_test = Box::new(42);
+    *heap_test -= 15;
+    let heap_test2 = Box::new("hello");
+    println!("{:?} {:?}", heap_test, heap_test2);
+
+    let mut vec_test = vec![1,2,3,4,5,6,7];
+    vec_test[3] = 42;
+    for i in &vec_test {
+        print!("{} ", i);
+    }
 
     loop {}
 }
@@ -83,4 +70,10 @@ fn enable_nxe_bit() {
         let efer = rdmsr(IA32_EFER);
         wrmsr(IA32_EFER, efer | nxe_bit);
     }
+}
+
+fn enable_write_protect_bit() {
+    use x86_64::registers::control_regs::{cr0, cr0_write, Cr0};
+
+    unsafe { cr0_write(cr0() | Cr0::WRITE_PROTECT) };
 }
