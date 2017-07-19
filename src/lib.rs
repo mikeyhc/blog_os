@@ -1,3 +1,4 @@
+#![feature(abi_x86_interrupt)]
 #![feature(lang_items)]
 #![feature(const_fn, unique)]
 #![no_std]
@@ -8,6 +9,8 @@ extern crate hole_list_allocator;
 extern crate alloc;
 #[macro_use]
 extern crate bitflags;
+#[macro_use]
+extern crate lazy_static;
 extern crate multiboot2;
 #[macro_use]
 extern crate once;
@@ -19,6 +22,7 @@ extern crate x86_64;
 #[macro_use]
 mod vga_buffer;
 mod memory;
+mod interrupts;
 
 use memory::FrameAllocator;
 
@@ -35,6 +39,12 @@ pub extern "C" fn rust_main(multiboot_information_address: usize) {
     enable_nxe_bit();
     memory::init(boot_info);
     enable_write_protect_bit();
+
+    // initialize our IDT
+    interrupts::init();
+
+    // invoke a breakpoint exception
+    x86_64::instructions::interrupts::int3();
 
     use alloc::boxed::Box;
     let mut heap_test = Box::new(42);

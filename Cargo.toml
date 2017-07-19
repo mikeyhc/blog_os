@@ -15,5 +15,9 @@ x86_64 = "0.1.2"
 [dependencies.hole_list_allocator]
 path = "libs/hole_list_allocator"
 
+[dependencies.lazy_static]
+features = ["spin_no_std"]
+version = "0.2.4"
+
 [lib]
 crate-type = ["staticlib"]
