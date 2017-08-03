@@ -7,6 +7,7 @@
 extern crate hole_list_allocator;
 #[macro_use]
 extern crate alloc;
+extern crate bit_field;
 #[macro_use]
 extern crate bitflags;
 #[macro_use]
@@ -24,8 +25,6 @@ mod vga_buffer;
 mod memory;
 mod interrupts;
 
-use memory::FrameAllocator;
-
 #[no_mangle]
 pub extern "C" fn rust_main(multiboot_information_address: usize) {
     let boot_info = unsafe {
@@ -37,11 +36,11 @@ pub extern "C" fn rust_main(multiboot_information_address: usize) {
     println!("Hello World{}", "!");
 
     enable_nxe_bit();
-    memory::init(boot_info);
+    let mut memory_controller = memory::init(boot_info);
     enable_write_protect_bit();
 
     // initialize our IDT
-    interrupts::init();
+    interrupts::init(&mut memory_controller);
 
     // invoke a breakpoint exception
     x86_64::instructions::interrupts::int3();
