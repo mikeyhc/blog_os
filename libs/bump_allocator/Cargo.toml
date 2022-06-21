@@ -5,4 +5,4 @@ authors = ["Philipp Oppermann <dev@phil-opp.com>",
            "Michael Blockley <mikeyhc@atmosia.net>"]
 
 [dependencies]
-spin = "0.4.5"
+spin = "0.5.2"
